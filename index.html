@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>جرّس | نظام البيجر الذكي</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -9,15 +20,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="جرّس">
 <title>جرّس | نظام البيجر الذكي</title>
-
-<!-- ===== الشعار المدمج (يتولد تلقائياً) ===== -->
-<link rel="icon" type="image/png" id="dyn-fav">
-<link rel="apple-touch-icon" id="dyn-apple">
-<link rel="apple-touch-icon" sizes="180x180" id="dyn-apple-180">
-<link rel="apple-touch-icon" sizes="192x192" id="dyn-apple-192">
-<link rel="apple-touch-icon" sizes="512x512" id="dyn-apple-512">
-<link id="dyn-manifest" rel="manifest">
-
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
@@ -544,77 +547,6 @@ body.cust .ocard { background: #ffffff; border-color: #e2e8f0; }
 </div>
 
 <script>
-/* ===== 🎨 مولد الشعار التلقائي — لا تحتاج ترفع صور ===== */
-(function installJarresIcon(){
-  function drawBell(size){
-    const c=document.createElement('canvas');c.width=c.height=size;
-    const x=c.getContext('2d');
-    // خلفية متدرجة برتقالية
-    const bg=x.createLinearGradient(0,0,size,size);
-    bg.addColorStop(0,'#f97316');bg.addColorStop(1,'#ea580c');
-    x.fillStyle=bg;
-    // زوايا مدورة
-    const r=size*0.22;
-    x.beginPath();
-    x.moveTo(r,0);
-    x.arcTo(size,0,size,size,r);
-    x.arcTo(size,size,0,size,r);
-    x.arcTo(0,size,0,0,r);
-    x.arcTo(0,0,size,0,r);
-    x.closePath();
-    x.fill();
-    // ظل خفيف تحت الجرس
-    x.fillStyle='rgba(0,0,0,0.15)';
-    x.beginPath();
-    x.ellipse(size/2,size*0.82,size*0.28,size*0.04,0,0,Math.PI*2);
-    x.fill();
-    // جرس أبيض كبير
-    x.fillStyle='#ffffff';
-    x.font=(size*0.58)+'px serif';
-    x.textAlign='center';
-    x.textBaseline='middle';
-    x.shadowColor='rgba(0,0,0,0.3)';
-    x.shadowBlur=size*0.02;
-    x.shadowOffsetY=size*0.01;
-    x.fillText('🔔',size/2,size*0.54);
-    return c.toDataURL('image/png');
-  }
-  // توليد الأحجام المطلوبة
-  const sizes=[32,64,128,180,192,256,512];
-  const icons={};
-  sizes.forEach(s=>icons[s]=drawBell(s));
-  // ربط favicon + apple-touch-icon
-  const fav=document.getElementById('dyn-fav');if(fav)fav.href=icons[64];
-  const ap1=document.getElementById('dyn-apple');if(ap1)ap1.href=icons[192];
-  const ap2=document.getElementById('dyn-apple-180');if(ap2)ap2.href=icons[180];
-  const ap3=document.getElementById('dyn-apple-192');if(ap3)ap3.href=icons[192];
-  const ap4=document.getElementById('dyn-apple-512');if(ap4)ap4.href=icons[512];
-  // manifest inline
-  const manifest={
-    name:'جرّس | نظام البيجر الذكي',
-    short_name:'جرّس',
-    description:'جوال عميلك يرن أول ما يجهز طلبه',
-    start_url:'.',
-    scope:'.',
-    display:'standalone',
-    orientation:'portrait',
-    lang:'ar',
-    dir:'rtl',
-    background_color:'#0b1120',
-    theme_color:'#0b1120',
-    icons:[
-      {src:icons[192],sizes:'192x192',type:'image/png',purpose:'any'},
-      {src:icons[512],sizes:'512x512',type:'image/png',purpose:'any'},
-      {src:icons[512],sizes:'512x512',type:'image/png',purpose:'maskable'}
-    ]
-  };
-  const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
-  const url=URL.createObjectURL(blob);
-  const ml=document.getElementById('dyn-manifest');if(ml)ml.href=url;
-  // احفظ الأيقونة للاستخدام في الإشعارات
-  window.jarresIconDataUrl=icons[192];
-})();
-
 const $ = id => document.getElementById(id);
 const $$ = sel => document.querySelectorAll(sel);
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
@@ -644,36 +576,9 @@ const Persist = { key:()=>`jr3:${State.storeId}`,
   load(sid){ try{const r=localStorage.getItem(`jr3:${sid}`); if(!r)return false; const d=JSON.parse(r); State.orders=d.orders||[]; State.history=d.history||[]; State.seq=d.seq||0; return true;}catch(e){return false;} },
   clear(sid){ if(sid){try{localStorage.removeItem(`jr3:${sid}`);}catch(e){}} } };
 
-function generateIcon(size){
-  // استخدم الأيقونة المولّدة مسبقاً إذا كانت بنفس الحجم
-  if(window.jarresIconDataUrl && size===192) return window.jarresIconDataUrl;
-  const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');const r=size*0.22;x.beginPath();x.moveTo(r,0);x.arcTo(size,0,size,size,r);x.arcTo(size,size,0,size,r);x.arcTo(0,size,0,0,r);x.arcTo(0,0,size,0,r);x.closePath();const g=x.createLinearGradient(0,0,size,size);g.addColorStop(0,'#f97316');g.addColorStop(1,'#ea580c');x.fillStyle=g;x.fill();x.font=`${size*0.55}px serif`;x.textAlign='center';x.textBaseline='middle';x.fillText('🔔',size/2,size*0.56);return c.toDataURL('image/png');
-}
+function generateIcon(size){ const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');const r=size*0.22;x.beginPath();x.moveTo(r,0);x.arcTo(size,0,size,size,r);x.arcTo(size,size,0,size,r);x.arcTo(0,size,0,0,r);x.arcTo(0,0,size,0,r);x.closePath();const g=x.createLinearGradient(0,0,size,size);g.addColorStop(0,'#f97316');g.addColorStop(1,'#ea580c');x.fillStyle=g;x.fill();x.font=`${size*0.55}px serif`;x.textAlign='center';x.textBaseline='middle';x.fillText('🔔',size/2,size*0.56);return c.toDataURL('image/png'); }
 
-if('serviceWorker' in navigator){
-  const swCode=`
-    self.addEventListener('install',e=>self.skipWaiting());
-    self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
-    self.addEventListener('message',e=>{
-      if(e.data&&e.data.type==='notify'){
-        const opts={body:e.data.body,icon:e.data.icon||self.registration.scope+'favicon.ico',tag:e.data.tag||'jarres',vibrate:e.data.vibrate||[300,100,300],requireInteraction:true,data:{url:e.data.url}};
-        self.registration.showNotification(e.data.title,opts);
-      }
-    });
-    self.addEventListener('notificationclick',e=>{
-      e.notification.close();
-      if(e.notification.data&&e.notification.data.url){
-        e.waitUntil(clients.matchAll({type:'window'}).then(list=>{
-          for(const c of list){if('focus' in c)return c.focus();}
-          if(clients.openWindow)return clients.openWindow(e.notification.data.url);
-        }));
-      }
-    });
-  `;
-  const swBlob=new Blob([swCode],{type:'application/javascript'});
-  const swUrl=URL.createObjectURL(swBlob);
-  navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration failed:', err));
-}
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err)); }
 
 function wavFromSamples(samples, sr){
   const n=samples.length; const buf=new ArrayBuffer(44+n*2); const v=new DataView(buf);
@@ -961,4 +866,9 @@ document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==
 window.addEventListener('online',()=>{ /* mqtt يعيد الاتصال تلقائياً */ });
 </script>
 </body>
+</html>
+    <script  src="./script.js"></script>
+
+  </body>
+  
 </html>
