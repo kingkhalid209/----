@@ -1,40 +1,16 @@
-self.addEventListener('install', (event) => {
-    self.skipWaiting();
+self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
+self.addEventListener('message',e=>{
+  const d=e.data;
+  if(d&&d.type==='notify'){
+    e.waitUntil(self.registration.showNotification(d.title,{body:d.body,icon:d.icon,tag:d.tag||'jarres',vibrate:d.vibrate||[300,100,300],requireInteraction:true,data:{url:d.url}}));
+  }
 });
-
-self.addEventListener('activate', (event) => {
-    event.waitUntil(self.clients.claim());
-});
-
-self.addEventListener('message', function(event) {
-    if (event.data && event.data.type === 'notify') {
-        const options = {
-            body: event.data.body,
-            icon: event.data.icon,
-            tag: event.data.tag || 'jarres-notification',
-            vibrate: event.data.vibrate || [300, 100, 300],
-            requireInteraction: true,
-            data: { url: event.data.url }
-        };
-        self.registration.showNotification(event.data.title, options);
-    }
-});
-
-self.addEventListener('notificationclick', function(event) {
-    event.notification.close();
-    if (event.notification.data && event.notification.data.url) {
-        event.waitUntil(
-            clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-                for (let i = 0; i < clientList.length; i++) {
-                    let client = clientList[i];
-                    if (client.url.includes('jarres') && 'focus' in client) {
-                        return client.focus();
-                    }
-                }
-                if (clients.openWindow) {
-                    return clients.openWindow(event.notification.data.url);
-                }
-            })
-        );
-    }
+self.addEventListener('notificationclick',e=>{
+  e.notification.close();
+  const url=(e.notification.data&&e.notification.data.url)||self.registration.scope;
+  e.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(l=>{
+    for(const c of l){if('focus'in c)return c.focus();}
+    if(self.clients.openWindow)return self.clients.openWindow(url);
+  }));
 });
