@@ -38,3 +38,8 @@ self.addEventListener('notificationclick', function(event) {
         );
     }
 });
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault(); // هذا السطر يخفي إشعار Chrome
+  // يمكنك هنا إضافة كود لعرض زر تثبيت خاص بك أنت
+});
