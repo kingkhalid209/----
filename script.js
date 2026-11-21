@@ -45,3 +45,10 @@ self.addEventListener('notificationclick', function(event) {
         })
     );
 });
+
+// في ملف JavaScript الخاص بالصفحة الرئيسية
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); // يمنع ظهور شريط التثبيت التلقائي من كروم
+    // يمكنك هنا تخزين الحدث e واستخدامه لاحقًا إذا أردت عرض زر تثبيت مخصص
+    // deferredPrompt = e;
+});
